@@ -1,9 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return view('welcome');
+    dd(Auth::user()->name);
 });
 
 Route::get('/register', 'AuthController@showRegisterForm');

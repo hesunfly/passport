@@ -42,9 +42,6 @@
                         </form>
                         <hr>
                         <div class="text-center">
-                            <a class="small" href="forgot-password.blade.php">忘记密码?</a>
-                        </div>
-                        <div class="text-center">
                             <a class="small" href="login.blade.php">已有账号? 去登录!</a>
                         </div>
                     </div>

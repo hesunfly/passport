@@ -20,6 +20,7 @@ Route::post('/admin/login', 'AuthController@login');
 
 Route::get('/getAccessToken', 'AppController@getAccessToken');
 
+Route::get('/getUser', 'AuthController@getUser');
 
 Route::group([
     'prefix' => 'apps',

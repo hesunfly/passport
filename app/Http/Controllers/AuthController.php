@@ -142,4 +142,20 @@ class AuthController extends Controller
         return response()->json(['uuid' => $is_overdue->uuid, 'success' => 1]);
     }
 
+    public function getUser(Request $request)
+    {
+        $uuid = $request->input('uuid');
+
+        if (empty($uuid)) {
+            return responseJson(['success' => 0, 'msg' => 'uuid is empty'], 400);
+        }
+
+        $user = User::where(['uuid' => $uuid])->first();
+
+        if (empty($user)) {
+            return responseJson(['success' => 0, 'msg' => 'uuid is empty'], 400);
+        }
+
+        return responseJson(['success' => 1, 'data' => $user]);
+    }
 }

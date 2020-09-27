@@ -158,4 +158,17 @@ class AuthController extends Controller
 
         return responseJson(['success' => 1, 'data' => $user]);
     }
+
+    public function logout(Request $request)
+    {
+        $callback = $request->input('callback');
+
+        if (Auth::check()) {
+            $user = Auth::user();
+            Redis::del('login_status_' . $user->uuid);
+            Auth::logout();
+        }
+
+        return redirect()->away($callback);
+    }
 }

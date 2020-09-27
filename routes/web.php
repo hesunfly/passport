@@ -14,6 +14,8 @@ Route::get('/login', 'AuthController@showLoginForm');
 Route::post('/login', 'AuthController@login');
 Route::get('/loginCheck', 'AuthController@loginCheck');
 
+Route::get('logout', 'AuthController@logout');
+
 //管理员登录
 Route::get('/admin/login', 'AuthController@showLoginForm');
 Route::post('/admin/login', 'AuthController@login');

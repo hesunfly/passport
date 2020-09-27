@@ -12,7 +12,7 @@ class AuthRequest extends Request
                 'bail',
                 'required',
                 'string',
-                'min:5',
+                'min:3',
                 'max:20',
                 'unique:users,name',
             ],

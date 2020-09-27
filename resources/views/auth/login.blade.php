@@ -74,7 +74,7 @@
             }
 
             axios.post(
-                "{{ url('/login') }}",
+                "{!! url('/login') . '?' . $request_params !!}",
                 {
                     username, password,
                 }
@@ -82,21 +82,17 @@
                 layer.msg('登录成功！', {
                         time: 1000 //2秒关闭（如果不配置，默认是3秒）
                     }, function () {
-                        window.location.href = response.data;
+                        window.location.href = response.data.redirect_url;
                     }
                 );
             }).catch(function (error) {
-                layer.msg('error！', {
+                layer.msg(error.response.data, {
                         time: 2000 //2秒关闭（如果不配置，默认是3秒）
                     }, function () {
                         return false;
                     }
                 );
-                if (error.request.status === 422) {
-                    let msg = JSON.parse(error.request.responseText);
-                    let errors = msg.errors;
-                    console.log(errors);
-                }
+
             });
         });
 

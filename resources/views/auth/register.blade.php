@@ -107,7 +107,7 @@
             }
 
             axios.post(
-                "{{ url('/register') }}",
+                "{!! url('/register') . '?' . $request_params !!}",
                 {
                     name, email, password,
                 }
@@ -115,7 +115,7 @@
                 layer.msg('注册成功！', {
                         time: 1000 //2秒关闭（如果不配置，默认是3秒）
                     }, function () {
-                        window.location.href = response.data;
+                        window.location.href = response.data.redirect_url;
                     }
                 );
             }).catch(function (error) {

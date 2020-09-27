@@ -16,7 +16,6 @@ class CreateTicketsTable extends Migration
         Schema::create('tickets', function (Blueprint $table) {
             $table->increments('id');
             $table->string('ticket', 256)->unique();
-            $table->integer('app_id')->unsigned();
             $table->string('uuid');
             $table->timestamp('expire_at')->nullable();
             $table->timestamps();

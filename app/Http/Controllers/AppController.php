@@ -76,7 +76,7 @@ class AppController extends Controller
         }
 
         if ($app->enable) {
-            return responseJson(['success' => 0, 'msg' => 'current service disabled'], 400);
+            return responseJson(['success' => 0, 'msg' => 'current app disabled'], 400);
         }
 
         if ($app->secret != $secret) {
@@ -85,9 +85,8 @@ class AppController extends Controller
 
         $str = $app_name . $secret . time() . Str::random(6);
         $token = Hash::make($str);
-
-        $redis_key = 'passport_access_token_' . $app_name;
-        Redis::set($redis_key, $token);
+        $redis_key = generateAccessTokenCacheKeyByToken($token);
+        Redis::set($redis_key, $app_name);
         $expires_at = Carbon::now()->addHours(2)->timestamp;
         Redis::expireAt($redis_key, $expires_at);
 

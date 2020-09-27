@@ -12,6 +12,14 @@ Route::post('/register', 'AuthController@register');
 
 Route::get('/login', 'AuthController@showLoginForm');
 Route::post('/login', 'AuthController@login');
+Route::get('/loginCheck', 'AuthController@loginCheck');
+
+//管理员登录
+Route::get('/admin/login', 'AuthController@showLoginForm');
+Route::post('/admin/login', 'AuthController@login');
+
+Route::get('/getAccessToken', 'AppController@getAccessToken');
+
 
 Route::group([
     'prefix' => 'apps',

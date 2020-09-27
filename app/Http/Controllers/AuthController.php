@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthRequest;
 use App\Models\LoginLog;
+use App\Models\Ticket;
 use App\Models\User;
+use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,33 +16,42 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    private $quest_string;
+
+    public function __construct(Request $request)
+    {
+        $this->middleware('check_access_token');
+        $this->quest_string = $request->getQueryString();
+    }
 
     public function showRegisterForm()
     {
-        return view('auth.register');
+        return view('auth.register', ['request_params' => $this->quest_string]);
     }
 
     public function register(AuthRequest $request)
     {
         $request_data = $request->only(['name', 'password', 'email']);
         $request_data['uuid'] = Str::uuid()->toString();
-        User::create($request_data);
-        /*$callback = $request->input('callback');
+        $user = User::create($request_data);
 
-        $client = new Client();
-        unset($request_data['password']);
-        $response = $client->post($callback, ['form_params' => $request_data]);
-        if ($response->getStatusCode() != 200) {
-            return response('error', 400);
+        $callback_url = $request->input('callback_url');
+
+        $parse = parse_url($callback_url);
+        if (array_key_exists('query', $parse)) {
+            $callback_url .= "&";
+        } else {
+            $callback_url .= "?";
         }
 
-        $redirect = $request->input('redirect');*/
-        return response('', 201);
+        $callback_url .= "uuid={$user->uuid}";
+
+        return responseJson(['redirect_url' => $callback_url]);
     }
 
     public function showLoginForm()
     {
-        return view('auth.login');
+        return view('auth.login', ['request_params' => $this->quest_string]);
     }
 
     public function login(Request $request)
@@ -48,8 +60,6 @@ class AuthController extends Controller
             'username' => 'bail|required|string',
             'password' => 'bail|required|string|min:6|max:20',
         ]);
-
-
 
         $name = $request->input('username');
         if (filter_var($name, FILTER_VALIDATE_EMAIL)) {
@@ -84,11 +94,52 @@ class AuthController extends Controller
 
         Redis::set('login_status_' . $user->uuid, '1');
 
-       /* $ticket = $this->generateTicket();
+        $ticket = generateTicket($user->uuid);
+
         $this->saveTicket($ticket, $user->uuid);
 
-        $url = $this->loginCallBackUrl($ticket);*/
+        $callback_url = $request->input('callback_url');
 
-        return response($user, 200);
+        $parse = parse_url($callback_url);
+        if (array_key_exists('query', $parse)) {
+            $callback_url .= "&";
+        } else {
+            $callback_url .= "?";
+        }
+
+        $callback_url .= 'ticket=' . $ticket;
+
+        return responseJson(['redirect_url' => $callback_url]);
     }
+
+    private function saveTicket($ticket, $uuid)
+    {
+        Ticket::create([
+            'ticket' => $ticket,
+            'uuid' => $uuid,
+            'expire_at' => Carbon::now()->addMinute(5),
+        ]);
+    }
+
+    public function LoginCheck(Request $request)
+    {
+        $ticket = $request->input('ticket');
+
+        $has = Ticket::select(['id'])->where(['ticket' => $ticket])->first();
+
+        if (empty($has)) {
+            return responseJson(['success' => 0, 'msg' => 'ticket error!']);
+        }
+
+        $is_overdue = Ticket::select(['id', 'uuid'])->whereRaw(" ticket = '{$ticket}' and expire_at >= '" . Carbon::now() . "'")->first();
+
+        if (empty($is_overdue)) {
+            return responseJson(['success' => 0, 'msg' => 'ticket is overdue!']);
+        }
+
+        $is_overdue->delete();
+
+        return response()->json(['uuid' => $is_overdue->uuid, 'success' => 1]);
+    }
+
 }

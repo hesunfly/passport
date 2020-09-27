@@ -83,12 +83,18 @@ class AppController extends Controller
             return responseJson(['success' => 0, 'msg' => 'app secret is error'], 400);
         }
 
-        $str = $app_name . $secret . time() . Str::random(6);
+        $str = Str::random(6) . $app_name . $secret . time();
         $token = Hash::make($str);
-        $redis_key = generateAccessTokenCacheKeyByToken($token);
-        Redis::set($redis_key, $app_name);
+        $redis_key = 'access_token_' . $app_name;
+        $is_has = Redis::get($redis_key);
+        if (!empty($is_has)) {
+            Redis::del($is_has);
+        }
+        Redis::set($redis_key, $token);
+        Redis::set($token, $app_name);
         $expires_at = Carbon::now()->addHours(2)->timestamp;
         Redis::expireAt($redis_key, $expires_at);
+        Redis::expireAt($token, $expires_at);
 
         return responseJson(['success' => 1, 'msg' => 'success', 'access_token' => $token, 'expires_at' => $expires_at], 201);
     }

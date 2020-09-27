@@ -7,10 +7,8 @@ use App\Models\LoginLog;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 
@@ -49,8 +47,25 @@ class AuthController extends Controller
         return responseJson(['redirect_url' => $callback_url]);
     }
 
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
+        if (Auth::check()) {
+            $user = Auth::user();
+            $ticket = generateTicket($user->uuid);
+            $this->saveTicket($ticket, $user->uuid);
+            $callback_url = $request->input('callback_url');
+            $parse = parse_url($callback_url);
+            if (array_key_exists('query', $parse)) {
+                $callback_url .= "&";
+            } else {
+                $callback_url .= "?";
+            }
+
+            $callback_url .= 'ticket=' . $ticket;
+
+            return redirect()->away($callback_url);
+        }
+
         return view('auth.login', ['request_params' => $this->quest_string]);
     }
 

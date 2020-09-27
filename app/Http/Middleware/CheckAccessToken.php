@@ -22,18 +22,17 @@ class CheckAccessToken
         if (empty($token)) {
             return responseJson(['success' => 0, 'msg' => 'access_token is empty'], 400);
         }
-        $key = generateAccessTokenCacheKeyByToken($token);
 
-        $has = Redis::get($key);
+        $app_name = Redis::get($token);
 
-        if (empty($has)) {
+        if (empty($app_name)) {
             return response()->json([
                 'success' => 0,
                 'msg' => 'token invalidation',
             ])->setStatusCode(401);
         }
 
-        $service = App::where(['app_name' => $has, 'enabled' => 1])->first();
+        $service = App::where(['app_name' => $app_name, 'enabled' => 1])->first();
 
         if (empty($service)) {
             return responseJson(['success' => 0, 'msg' => 'app is disabled'], 403);

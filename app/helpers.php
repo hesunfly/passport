@@ -26,18 +26,6 @@ function responseJson($data, $statusCode = 200)
     return response()->json($data)->setStatusCode($statusCode);
 }
 
-/**
- * 返回access_token的 redis key
- * @function: generateAccessTokenCacheKeyByToken
- * @date: 2020/9/27
- * @user: hesunfly
- * @param $token
- * @return string
- */
-function generateAccessTokenCacheKeyByToken($token)
-{
-    return 'access_token_' . $token;
-}
 
 /**
  * 生成ticket

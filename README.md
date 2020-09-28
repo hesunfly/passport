@@ -1,5 +1,5 @@
 基于laravel开的单点登录服务端，基本可用，更多功能正在开发中，有问题可在issue中提出，一起加油！
-使用方式结合下方的文档和 https://gitee.com/hesunfly/passport_client，该项目包含一个最基本的demo。
+使用方式结合下方的文档和 [passport_client](https://gitee.com/hesunfly/passport_client)，该项目包含一个最基本的demo。
 使用前需要先添加客户端应用，生成app_name和secret。
 
 应用管理 ： '/apps';
